@@ -1,0 +1,342 @@
+版本控制系统即VCS(version control system)是一种记录若干文件的修改记录的系统，它帮助我们查阅或回到某个历史版本
+-"人肉"VCS
+-LVCS 本地
+-RCS(Revision Control system)
+无法应对多用户同时开发
+-CVCS 集中式
+CVS(Concurrent Version System)
+SVN(Subversion)
+Perforce
+
+缺点
+所有操作都要经过网络, 降低效率
+单点模式，一旦中央服务器发生故障, 将无法工作
+-DVCS 分布式
+-Git
+-Mercurial
+
+服务器上有, 本地也有
+
+
+分支
+分支就是从目标仓库获得一份项目拷贝，每条拷贝都有和源仓库功能一样的开发线
+分支模型(branching model)/工作流(workflow)
+一个围绕项目[开发/部署/测试]等工作流程的分支操作(创建,合并等)规范集合
+
+产品级的分支模型
+常驻分支
+development
+从master分支创建
+production(master)
+默认分支
+活动分支
+feature 特性开发
+从development创建
+hotfix: 如hotfix-36 (代码bug修复)
+从master分支创建
+release: 如release-110
+从development分支创建, 它标志着一个产品正式发布
+特性开发
+
+发布线
+
+
+
+开发环境: 需要提交到下一个release的特性分支, 本地测试
+测试环境: release分支/ development分支
+预发布环境: release分支
+生产环境: master分支
+
+
+
+Git是什么
+git是一个免费开源的分布式版本控制系统(DVCS)
+git而是一个基于内容寻址的存储系统, 而非基于文件
+
+优势
+快
+完全的分布式
+轻量级的分支操作
+git已经成为现实意义上的标准, 几乎所有优秀前端的开源项目都是通过git来控制的
+社区成熟活跃, 如github
+
+msysgit使用
+键入git即可查看常用命令
+通过
+git help <command>
+git <command> -h
+git <command>--help
+man git-<command>
+等命令可以查看帮助, 勤查文档
+
+
+git-config
+用户配置
+git config --global user.name "xxx"
+git config --global user.email xxx@xxx.com
+配置级别
+--local [默认,高优先级] 只影响本仓库, .git/config 是个文本文件
+--glocal [中优先级] 影响到所有当前用户的git仓库 ~/.gitconfig
+--system [低优先级] 影响到全系统的git仓库 /etc/gitconfig
+git config --list 可以查看当前配置信息
+
+
+
+git init
+初始化仓库
+git init [path]
+git init [path] --bare
+git init 初始化仓库 会创建仓库目录.git, 包含所有重要的文件夹, 包括之前的config
+
+git status 查看当前仓库信息, 如果在初始化之前，则找不到git目录
+未跟踪<->跟踪
+工作目录<->暂存区
+暂存区<->最新提交
+
+git-status: 对状态的跟踪
+内容状态
+工作目录
+暂存区
+提交区
+文件状态
+未跟踪
+已跟踪
+
+touch README.md 在当前目录下，创建这样一个文件名的空文件
+
+git add
+添加文件内容到暂存区(同时文件被跟踪)
+git add README.md
+再用git status 查看状态
+
+可以通过
+git add .
+来添加当前目录下所有文件
+gitignore
+在添加时忽略匹配的文件
+仅作用于未知中的文件
+
+
+git-rm 从暂存区删除
+git rm --cached 仅从暂存区删除
+git rm 从暂存区与工作目录删除\
+git rm $(git ls-files --deleted) 删除所有被跟踪，但是在工作目录被删除的文件
+git ls-files 帮助我们去暂存区查找相应的文件
+--deleted 参数, 帮助我们去暂存区查找所有已经删除的文件
+git ls-files --deleted 作为参数传给git rm命令
+
+
+
+git commit
+根据暂存区内容创建一个提交记录
+git commit -m 'xxx'
+-m参数，用来注释, 从暂存区提交
+git commit -a -m 'xxx'
+从工作目录直接提交
+
+git log
+显示提交历史记录
+
+commit: SHA-1编码的HASH标示符
+Author: git-config配置的提交者信息
+
+一般6到7位HASH已经足够分辨文件了
+
+可以用这个命令更美观
+
+git中的alias命令
+git config alias.shortname <fullcommand>
+
+别名别名也是配置在config文件里面
+git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+git diff
+显示不同的版本差异
+git diff: 工作目录与暂存区的差异
+git diff -cached [<reference>]: 暂存区与某次提交差异, 默认为HEAD, HEAD指向当前提交
+git diff <reference>: 工作目录与某次提交的差异
+
+还可以传入两个参数，查看两个版本之间的差异
+
+撤销本地修改
+git的提示非常友好，会指导我们如何进行下一步
+
+git checkout -- <file>
+将文件内容从暂存区复制到工作目录, 由于git是基于内容的版本控制系统, 他们内容一致时就认为没有改动, 这样会丢弃你的修改，使用时要小心
+
+撤销暂存区内容
+
+git reset HEAD <file>
+将文件内容从上次提交(提交区)复制到暂存区
+这样工作目录和暂存区不同步
+
+撤销全部改动
+git checkout HEAD -- <file>
+将内容从上次提交复制到工作目录
+
+
+
+
+
+分支操作
+git branch
+分支的增删查改都靠它
+git branch <branchName> 创建分支
+git branch -d <branchName> 删除指定分支
+git branch -v 显示所有的分支信息
+
+$cat .git/refs/heads/master 可以看到一个分支的应用，只是一个文本文件, 里面只有一个40个字符长的SHA-1编码, 这就是git分支轻量级的秘密, 所有的分支信息都在这个文件夹下
+
+git commit 提交
+当使用commit命令创建一提交对象的时候，他会有一个引用指向前一个提交. master分支和HEAD会跟着走，指向最新的提交.
+让我们使用git branch next命令的时候, 他会在HEAD指向的对象上创建一个新的应用.
+当我们再次使用提交命令时, 会创建一个新的提交对象, master和HEAD随之向前移动一步, ,指向新的提交对象, 而next不动, 因为我们还没有切到它上面进行工作
+
+git checkout
+通过移动HEAD检出版本, 可用于分支切换. 它同时也会把当前的暂存区和工作目录，恢复到你移动到的,版本, 相当于分支的切换
+git checkout <branchName> 让指针直接指向目标分支
+git checkout -b <branchName> 会直接创建一个分支，然后切换到它, 相当于git branch后接git checkout
+git checkout <reference> 也可以移动到任何的应引用对象上
+使用git checkout next, 即可使HEAD指针从master所指的对象上, 移动的next指向的分支, 因为所有的提交是随着HEAD走的, 所以此时即可在next上进行开发, 此时使用提交命令, 即可创建一个新的提交对象, 指向之前的next分支对象, 而HEAD和next则向前移动一步，指向新创建的提交对象
+输入git checkout - 即可使HEAD回到上一个分支, 即之前master所在的分支
+
+使用git branch -v命令即可查看分支信息
+前面带有星号的分支, 即当前分支(HEAD指向的分支)
+
+git checkout <reference> 可以将HEAD移动到之前的任意节点, 跟具体的分值分离了(脱离分支末端), 这是我们称之为detached HEAD(分离的head), 尽量避免在这个状态下提交, 因为没有引用指向这个提交记录, 当head重新回到master上, 之前所做的提交会被视为未被引用, 之后会被垃圾回收器回收
+
+git reset
+将当前分支回退到历史某个版本
+使用checkout并不能真正的回退，只是将HEAD移动到历史版本
+git reset -- mixed <commit> (默认)
+git reset -- soft <commit>
+git reset -- hard <commit>
+主要是内容和工作目录是否会恢复到暂存区的区别
+
+git reset --mixed e390b3(某版本编码) 即可完成回退, 同时将当前的内容复制到暂存区
+当使用hard参数时, 内容还会被复制到工作目录
+当使用soft参数时,可和保留暂存区和工作目录, 不被内容覆盖
+回退之后，原来的分支成为一个没有被索引的提交, 有可能会被垃圾回收器回收, 此时它他也不在log中显示, 需要用git reflog分支查看，之前经过的路径
+
+使用这个命令要尽快, 因为reflog不断向前, 有些信息可能会丢失
+
+如何避免输入hash值定位
+使用捷径
+A^: A上的父提交被
+A~m: 在A之前的第n次提交
+
+
+
+
+常见错误
+
+
+git stash
+保存目前的工作目录和暂存区状态，并返回到干净的工作空间
+
+push to stash area是注释
+
+stash pop = stash apply + stash drop
+
+git merge
+合并分支
+
+将next分支合并到master分支
+使用 git merge next命令, 我们当前是在master分支, 所以省略了第二个参数
+合并发生在3个提交节点上，是一个三方合并, 分别是两个分支的共同祖先以及两个分支节点, 合并结果被复制到工作目录和暂存区, 然后完成一次提交, 提交节点父指向有两个, 一个指向next , 一个指向master
+
+
+这个命令可以帮我们显示当前节点的一些信息
+
+合并很大概率会发生冲突, 要解决merge冲突
+
+冲突的展示
+
+将冲突的文件编辑到我们需要的样子
+最后用git add和git commit -m 'resolve', 来完成这次冲突的解决
+
+也不是所有的合并都会冲突
+进行线性开发后的合并, 就不会有冲突 merge fast-forward
+
+但这样我们就不知道合并信息了
+这时候我们传入git merge next --no-ff, 禁用merge fast-forward
+就不会进行线性合并了
+
+
+git rebase
+修剪提交历史基线, 俗称"变基"
+
+可以让这次提交在master分枝上重演(而非复制), 达到线性合并目的
+
+可以自己挑选需要重演的节点
+git rebase --onto master 5751363
+这个节点以后的节点会被重演
+
+标红的地方被遗弃
+
+rebase vs merge
+
+不在共有分支使用rebase
+比如在master分枝上使用rebase
+
+两份不同的提交是相同的内容, 其他代码编辑者进行拉取时 ,合并内容时有重复
+
+git tag
+对某个提交设置一个不变的别名
+git tag v0.1 e39d0b2
+之后可以直接使用标签名
+比如 git checkout v0.1
+
+
+远程操作
+git支持本地协议，可以初始化一个本地的远程服务器
+git init ~/git-server --bare
+bare参数的意思是 将当前仓库初始化为一个裸仓库, 没有工作目录
+
+中央服务器本身就不应该有工作目录
+
+git push
+第一次提交
+
+产生的结果
+
+
+git remote
+远程仓库相关配置操作
+
+
+
+
+push冲突
+
+
+每一个远程分支在本地都有一个指针, 叫origin/master, 不随本地的commit变动
+当我们使用git push命令时, origin/master指针发生移动, 指向最新提交的对象, 远程的HEAD/master也指向最新的记录.
+
+git fetch
+获取远程仓库的提交历史
+git fetch + merge
+使用 git fetch origin master
+fetch可以使origin/master同步, 在merge远程分支origin, 再push推送到服务器的
+
+git pull = git fetch + git merge
+
+如果发生
+fatal: refusing to merge unrelated histories
+可以先git remote add origin <url>
+然后 git fetch origin master
+然后 git merge origin/master ---–allow-unrelated-histories
+
+使用参数
+-–allow-unrelated-histories
+
+完整获取远程仓库
+git clone = git init + git remote + git pull
+克隆一个远程仓库，作为本地仓库, 获得所有远程仓库的历史
+
+帮我们配置好了origin
+
+参考资料
+git - 简明指南
+try.github.com
+pro git 百科全书
