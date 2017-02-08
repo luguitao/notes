@@ -99,5 +99,22 @@ require => [Package['sshd'], Class['ssh:: config']],
 ```
 package应用之前所有的yumrepo必须要先被应用, <||>运算符筛选一批资源, 中间的运算符代表匹配规则
 ```puppet
-yumrepo <| |> -> package <| provider = yum|>
+yumrepo <| |> -> package <| provider == yum|>
+```
+
+###虚拟资源
+定义虚拟资源, 前面加上@
+```puppet
+@user { luke: ensure => present }
+```
+实例化
+1.采用<||>语法
+```puppet
+User <| title == luke |>
+User <| (group ==dba or group == sysadmin or title == luke )|>
+```
+2.realize函数
+```puppet
+realize User[luke]
+realize(User[johnny], User[billy])
 ```
