@@ -56,3 +56,34 @@ class ssh:: server:: solaris inherits ssh:: server {}
 ```puppet
 $:: operatingsystem
 ```
+
+
+###代码调试
+通过为exec
+```puppet
+$ vim test_output.pp
+exec { 'test_logoutput'
+  command => "/bin/ls linuxtone.org",
+  logoutput => on_failure,
+}
+```
+也可以通过notify
+```puppet
+notify { "I am running on node $fqdn": }
+notify { "I an running on operatingsystem is $operatingsystem": }
+```
+
+
+###puppet依赖
+不具备触发功能, 只表示依赖关系<br>
+* require: 引用的对象执行之后该资源才被应用
+* before: 与require相反
+
+带触发功能
+* subscribe: 类似require, 当引用对象资源发生改变时, 执行相应的动作
+* notify: 类似before, 该资源发生改变时, 通知某资源进行更新
+
+指定依赖常用的方法, ->表示require主要依赖关系, ~>表示notify主要触发动作
+```puppet
+Package['sshd'] -> File['/etc/sshd/sshd_config'] ~> Service['sshd']
+```
