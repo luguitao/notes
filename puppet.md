@@ -75,6 +75,7 @@ notify { "I an running on operatingsystem is $operatingsystem": }
 
 
 ###puppet依赖
+####关键词指向的资源首字母应该大写
 不具备触发功能, 只表示依赖关系<br>
 * require: 引用的对象执行之后该资源才被应用
 * before: 与require相反
@@ -83,7 +84,20 @@ notify { "I an running on operatingsystem is $operatingsystem": }
 * subscribe: 类似require, 当引用对象资源发生改变时, 执行相应的动作
 * notify: 类似before, 该资源发生改变时, 通知某资源进行更新
 
-指定依赖常用的方法, ->表示require主要依赖关系, ~>表示notify主要触发动作
+指定依赖常用的方法<br>
+->表示require主要依赖关系, ~>表示notify主要触发动作
 ```puppet
 Package['sshd'] -> File['/etc/sshd/sshd_config'] ~> Service['sshd']
+```
+指定某个资源依赖与某个类
+```puppet
+require => Class['repo163']
+```
+指定某个资源依赖于软件包及某个类
+```puppet
+require => [Package['sshd'], Class['ssh:: config']],
+```
+package应用之前所有的yumrepo必须要先被应用, <||>运算符筛选一批资源, 中间的运算符代表匹配规则
+```puppet
+yumrepo <| |> -> package <| provider = yum|>
 ```
