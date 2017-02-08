@@ -25,3 +25,34 @@ case $:: operatingsystem {
   }
 }
 ```
+
+### 类
+1.文件名
+    定义一个apache类, 有两个子类 其配置方法如下:
+```puppet
+# /etc/puppetlabs/puppet/modules/apache/manifests
+# init.pp
+class apache { }
+# ssl.pp
+class apache:: ssl { }
+# virtual_host.pp
+define apache:: virtual_host () { }
+```
+
+2.资源关系声明必须从左到右
+```puppet
+Package['httpd'] -> Service['httpd']
+```
+
+3.类的继承
+```puppet
+class ssh {}
+class ssh:: client inherits ssh {}
+class ssh:: server inherits ssh {}
+class ssh:: server:: solaris inherits ssh:: server {}
+```
+
+4.变量名称定义时最好使用双冒号标注
+```puppet
+$:: operatingsystem
+```
