@@ -1,17 +1,43 @@
 ### 条件语句
-1.保持资源的声明 
+常用比较符:
+* 等于==(不区分大小写)
+* 不等于!=
+* 正则表达式 =~操作符
+
+1.if语句<br>
+if语句可以没有返回值, 但一定要有notify资源. puppet会自动将if后的表达式转换为布尔类型:
+* 字符串: 除了空字符串都是true
+* 数字: 所有数字都是true, 包括0和负数
+* undef: false
+* 数组和hash: 都是true, 包括空数组和空哈希
+* 资源引用: 都是true
+```puppet
+if $operatingsystem == "ubuntu" {
+  notify {"blablabla": }
+}
+elsif $operatingsystem in [ "centos", "redhat" ] {
+  notify {"blablabla": }
+}
+else {
+  notify {"blablabla": }
+}
+```
+2.selector选择器<br>
+只返回一个值, 不执行代码
 ```puppet
 $file_mode = $:: operatingsystem ? {
   debian => '0007',
   redhat => '0776',
   fedora => '0007',
+  default => '0001',
 }
 file { '/tmp/readme.txt':
   content => "Hello World\n",
   mode => $file_mode,
 }
 ```
-2.case语句配置的默认值
+3.case语句<br>
+没有返回值也没有notify资源的调用
 ```puppet
 case $:: operatingsystem {
   centos: {
@@ -139,5 +165,3 @@ realize(User[johnny], User[billy])
   * $settings::<name of setting>: 服务端设置项的值
   * $module_name: 模块名称
   
-
-###条件语句
