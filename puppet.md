@@ -118,3 +118,26 @@ User <| (group ==dba or group == sysadmin or title == luke )|>
 realize User[luke]
 realize(User[johnny], User[billy])
 ```
+
+###作用域与变量
+####作用域
+全局作用域只能访问全局变量, 节点作用域可以访问节点变量和全局变量, example::parent/example::other/example::four可以访问自己的变量以及节点变量和全局变量, example::child可以访问所有变量.
+* 全局作用域在site.pp
+* 节点作用域定义在node内
+* 局部作用域定义在类内
+* 同名变量以最局部的定义为准
+
+####变量
+同一作用域下只能赋值一次, 不同作用域可再赋值, 以最局部的赋值为准<br>
+* 客户端内置变量
+  * $environment: 节点环境
+  * $clientcert: 节点名称certname
+  * $clientversion: 客户端puppet版本
+* 服务端内置变量
+  * $servername: 服务端完整、合格的域名, 主机名即facter中的fqdn
+  * $serverip: 服务端ip
+  * $settings::<name of setting>: 服务端设置项的值
+  * $module_name: 模块名称
+  
+
+###条件语句
