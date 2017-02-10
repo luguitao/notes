@@ -2,7 +2,7 @@
 常用比较符:
 * 等于==(不区分大小写)
 * 不等于!=
-* 正则表达式 =~操作符
+* 正则表达式 =~操作符, !~操作符
 
 1.if语句<br>
 if语句可以没有返回值, 但一定要有notify资源. puppet会自动将if后的表达式转换为布尔类型:
@@ -165,3 +165,21 @@ realize(User[johnny], User[billy])
   * $settings::<name of setting>: 服务端设置项的值
   * $module_name: 模块名称
   
+###哈希类型
+```puppet
+{ key1 => 'val1', key2 => 'val2' }
+$myhash = { key => "some value", other+key => "some other value" }
+notice( $myhash[key] )
+```
+
+###标签
+在puppet定义的manifests中, 资源名、类名、自定义类型将会被自动打上标签
+```puppet
+apache::vhost {'docs.puppetlabs.com':
+  port => 80,
+  tag => ['us_mirror1', 'us_mirror2'],
+}
+```
+```shell
+$ sudo puppet agent --test --tags apache, us_mirror1
+```
