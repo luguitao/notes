@@ -25,3 +25,27 @@ echo ${!abc[*]}
 echo ${#abc[@]}
 echo ${#abc[*]}
 ```
+
+###防火墙
+####iptables
+存储防火墙策略
+```shell
+service iptables save
+```
+存储在/etc/sysconfig/iptables中
+####selinux
+1.查看
+```shell
+sestatus
+```
+2.关闭
+```shell
+vi /etc/selinux/config
+SELINUX=disabled
+```
+3.开启
+```shell
+vi /etc/selinux/config
+SELINUX=enforce
+```
+4.修改需要重启
