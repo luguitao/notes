@@ -57,3 +57,22 @@ vi /etc/selinux/config
 SELINUX=enforce
 ```
 4.修改需要重启
+
+
+###VIM和shell的切换
+在vim中, 按ctrl+z挂起, 再用fg命令回到vim
+
+###截取字符串
+```shell
+file=/dir1/dir2/dir3/my.file.txt
+
+${file#*/} #删掉第一个"/"及其左边的字符串, 输出为dir1/dir2/dir3/my.file.txt
+${file##*/} #删掉最后一个"/"及其左边的字符串, 输出为my.file.txt
+${file#*.} #删掉第一个"."及其左边的字符串, 输出为file.txt
+${file##*.} #删掉最后一个"."及其左边的字符串, 输出为txt
+
+${file%%/*} #删掉第一个"/"及其右边的字符串, 输出为空值
+${file%/*} #删掉最后一个"/"及其右边的字符串, 输出为/dir1/dir2/dir3
+${file%%.*} #删掉第一个"."及其右边的字符串, 输出为/dir1/dir2/dir3/my.file
+${file%.*} #删掉最后一个"."及其右边的字符串, 输出为/dir1/dir2/dir3/my
+```
