@@ -76,3 +76,18 @@ ${file%/*} #删掉最后一个"/"及其右边的字符串, 输出为/dir1/dir2/d
 ${file%%.*} #删掉第一个"."及其右边的字符串, 输出为/dir1/dir2/dir3/my.file
 ${file%.*} #删掉最后一个"."及其右边的字符串, 输出为/dir1/dir2/dir3/my
 ```
+
+
+###awk
+```shell
+cat file | awk '{print $1}' #每行打印第一个字段
+cat file | awk '{print $1,$2}' #每行打印第一个字段和第二个字段
+cat file | awk '{print $1"+"$2}' #每行打印第一个字段+第二个字段, 双引号内可以打印任何字符串
+cat file | awk -F'[: ]' '{print $2}' #每行以冒号和空格为分隔符, 打印第二列
+cat file | awk -F'[: ]+' '{print $2}' #每行以连续的冒号和空格为分隔符, 打印第二列
+ifconfig eth0 | grep 't a' | awk -F'[: ]+' '{print $4}' #打印eth0的ip
+cat file | awk '{print NF}' #打印每一行的字段数, NF是awk的内置变量
+cat file | awk '{print $NF}' #打印每一行的
+```
+1.默认以空白(一个或多个空格)为分隔符, 或者用-F参数指定分隔符
+2.读取一行, 然后执行awk后面的命令
