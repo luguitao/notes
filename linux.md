@@ -1,5 +1,6 @@
 ###修改启动项
-linux系统启动流程<br>
+linux系统启动流程  
+
 1. bios找到磁盘上的mbr主引导扇区
 2. 进入grub界面选择相应的启动内核
 3. 读取kernel内核文件-/boot/vmlinuz-*
