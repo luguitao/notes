@@ -17,4 +17,31 @@ rpm包会为程序生成一个启动脚本放到/etc/rc.d/init.d中, 供service�
 用chkconfig命令可以修改开机启动  
 可以通过-h参数查看帮助  
 如chkconfig --level 3 httpd on  
-重启后生效
+重启后生效  
+只有rpm安装的服务脚本, 才能通过chkconfig调整启动级别
+
+不是系统服务，需要命令启动的  
+直接编辑 /etc/rc.d/rc.local  
+在最下面一行加入启动命令即可。例如：  
+```shell
+su - svn -c "svnserve -d --listen-port 9999 -r /opt/svndata" //这样开机就可以自动启动svnserver了。  
+```  
+1、把启动程序的命令添加到/etc/rc.d/rc.local文件中，比如下面的是设置开机启动httpd。  
+ 代码如下	复制代码  
+```shell
+#!/bin/sh 
+# 
+# This script will be executed *after* all the other init scripts. 
+# You can put your own initialization stuff in here if you don't 
+# want to do the full Sys V style init stuff. 
+  
+touch /var/lock/subsys/local
+/usr/local/apache/bin/apachectl start
+```
+2、把写好的启动脚本添加到目录/etc/rc.d/init.d/，然后使用命令chkconfig设置开机启动。
+例如：我们把httpd的脚本写好后放进/etc/rc.d/init.d/目录，使用
+```shell
+chkconfig --add httpd 
+chkconfig httpd on
+```
+命令即设置好了开机启动。
