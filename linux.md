@@ -10,3 +10,11 @@ linux系统启动流程
 7. 读取/etc/rc.d/rc.sysinit, 完成时钟设置, 主机名的设置, 分区表的挂载(/etc/fstab)
 8. 读取/etc/rc.d/rc脚本, 通过该脚本吸收3级别, 然后启动/etc/rc.d/rc3.d下所有以s开头的服务, 不启动该目录下以k开头的服务
 9. 进入登录界面
+
+用rpm包安装的程序, 都可以用service统一管理, 传入start/restart/stop作为参数  
+rpm包会为程序生成一个启动脚本放到/etc/rc.d/init.d中, 供service管理
+
+用chkconfig命令可以修改开机启动  
+可以通过-h参数查看帮助  
+如chkconfig --level 3 httpd on  
+重启后生效
