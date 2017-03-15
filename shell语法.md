@@ -97,9 +97,18 @@ awk 'NR==FNR{print $0}' file file1 #打印前一个文件的所有字段
 awk 'NR!=FNR{print $0}' file file1 #打印后一个文件的所有字段
 cat file | awk 'NR>1&&NR<4{print $0}' #打印第2行和第3行
 cat file | awk '{print NR}' | tail -1 #打印文件行数
+ 
+cat file | awk 'BEGIN{print "================title============"}{print $0}END{print "=============end=========="}' #可以在原有文件加头加尾
+
+cat file | awk '{print $0, $3+$4+$5,($3+$4+$5)/3,int(($3+$4+$5)/3)}' #多加一些运算结果列, 除法支持小数, 加上int可取整
+cat file | awk '{a=$3+$4+$5;print $0,a}' #可以在同一个大括号内使用变量
+cat file | awk '{a+=$1}END{print a}' #可以得到第一个字段的和
 ```
 1.默认以空白(一个或多个空格)为分隔符, 或者用-F参数指定分隔符
 2.读取一行, 然后执行awk后面的命令
 3.NF, 字段数, number of fields
 4.NR, 行号, number of record
 5.FNR, 相对行号, 单文件awk中效果和NR一样, 多文件时不同, 见用例
+6.语句结构: awk '[条件1]{动作2}[条件2]{动作2}...'
+7.BEGIN和END分别对应读取所有行之前和所有行之后要进行的动作, BEGIN最常用的地方是变量赋值, END最常用的地方是变量输出
+8.awk是弱类型的语句,变量赋值前为空,但做数学运算时默认为0
