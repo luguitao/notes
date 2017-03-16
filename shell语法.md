@@ -1,4 +1,4 @@
-###获取帮助
+### 获取帮助
 ```shell
 <命令名> --help
 <命令名> -h
@@ -6,7 +6,7 @@ man <命令名>
 ```
 man里面可以看例子
 
-###数组语法
+### 数组语法
 1.数组定义
 typeset和declare完全一样
 ```shell
@@ -34,8 +34,8 @@ echo ${#abc[@]}
 echo ${#abc[*]}
 ```
 
-###防火墙
-####iptables
+### 防火墙
+#### iptables
 存储防火墙策略
 ```shell
 service iptables save
@@ -59,10 +59,10 @@ SELINUX=enforce
 4.修改需要重启
 
 
-###VIM和shell的切换
+### VIM和shell的切换
 在vim中, 按ctrl+z挂起, 再用fg命令回到vim
 
-###截取字符串
+### 截取字符串
 ```shell
 file=/dir1/dir2/dir3/my.file.txt
 
@@ -78,7 +78,7 @@ ${file%.*} #删掉最后一个"."及其右边的字符串, 输出为/dir1/dir2/d
 ```
 
 
-###awk
+### awk
 ```shell
 cat file | awk '{print $1}' #每行打印第一个字段
 cat file | awk '{print $1,$2}' #每行打印第一个字段和第二个字段
