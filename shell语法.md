@@ -147,3 +147,18 @@ iptables -t filter -D INPUT 1 #删除filter表中input链的第一条规则
   * -A/--append 在规则列表的最后增加一条规则
   * -I/--insert 在执行的位置插入一条规则, 不指定则加在最前面
   * -D/--delete 删除一个规则
+  
+```shell
+iptables -I FORWARD -s 192.168.10.0/24 -d 192.168.80.0/24 -p icmp -m icmp --icmp-type echo-request -j DROP #ping命令的request数据包drop掉
+iptables -I FORWARD -p tcp -d 192.168.10.0/24 -s 192.168.80.0/24 -m multiport --dports 1:1024,3389 -j DROP #这些目标端口的数据包drop
+iptables -I FORWARD -m iprange --src-range 192.168.80.1-192.168.80.100 -j DROP #该ip范围内的数据包drop
+iptables -I FORWARD -s 192.168.80.0/24 -d 192.168.10.123/32 -p tcp --dport 3389 -m connlimit --connlimit-above 2 -j DROP #最大连接不超过2
+iptables -I FORWARD -s 192.168.10.0/24 -d 192.168.80.0/24 -m limit --limit 300/second -j ACCEPT #每秒钟不超过300个数据包时, 接受, 如果超出, 则寻找下一条策略, 后面可以加一条DROP
+iptables -I FORWARD -S 192.168.10.0/24 -d 192.168.80.0/24 -m limit --limit 300/sec --limit-burst 1000 -j ACCEPT # 前1000个数据包不限速, 后面的数据包限速300个每秒
+```
+* -m icmp --icmp-type可以指定icmp类型, 后面可以跟echo-request/echo-reply
+* -m multiport 可以指定多个端口, 后接--sport/--dport/--ports 
+* -m iprange 可以指定一个地址范围, 后接--src-range/--dst-range 
+* -m connlimit --connlimit-above 限定最大连接数
+* -m limit --limit 限速, 限制某段时间内封包的平均流量, 参数有/second /miniute /hour /day, 数据包最大1500字节
+* -m limit --limit-burst, 瞬间流量控制, 超过上限的数据包被丢弃
