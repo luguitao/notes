@@ -1,3 +1,35 @@
+### get the rights in octal
+```shell
+stat -c %a ${filename}
+
+#!/bin/bash
+function show
+{
+local ar=$3[@]
+echo ${!ar}
+echo $1
+echo $2
+for ex in ${!ar}
+do
+  echo ${ex}
+  local array=(`find $1 -name "*.${ex}"`)
+  echo ${array[@]}
+  for file in ${array[@]}
+  do
+    if [[ `stat -c %a ${file}` > $2 ]]
+    then
+      echo ${file}
+    fi
+  done
+done
+}
+a='/root'
+b=700
+c=(txt sh jar py)
+show $a $b c
+```
+
+
 ### 获取帮助
 ```shell
 <命令名> --help
