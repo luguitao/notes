@@ -194,3 +194,11 @@ iptables -I FORWARD -S 192.168.10.0/24 -d 192.168.80.0/24 -m limit --limit 300/s
 * -m connlimit --connlimit-above 限定最大连接数
 * -m limit --limit 限速, 限制某段时间内封包的平均流量, 参数有/second /miniute /hour /day, 数据包最大1500字节
 * -m limit --limit-burst, 瞬间流量控制, 超过上限的数据包被丢弃
+
+```shell
+a=(`cat abc.inc | grep puppet | awk -F'=' '{print $2}' | awk '{split($0,array,",")} {for(i in array) print array[i]}'`)
+for b in ${a[@]}
+do
+    cat /etc/hosts | awk -v ip=${b%%_*} '$1==ip{print $2}'
+done
+```
