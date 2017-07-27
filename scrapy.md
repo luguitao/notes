@@ -143,4 +143,31 @@ scrapy crawl quotes -o quotes.jl
 ```
 >>> response.css('li.next a::attr(href)').extract_first()
 ```
-提取相应中的url地址, 作为
+提取相应中的url地址, 作为二级链接进行爬取
+```
+import scrapy
+
+
+class QuotesSpider(scrapy.Spider):
+    name = "quotes"
+    start_urls = [
+        'http://quotes.toscrape.com/page/1/',
+    ]
+
+    def parse(self, response):
+        for quote in response.css('div.quote'):
+            yield {
+                'text': quote.css('span.text::text').extract_first(),
+                'author': quote.css('small.author::text').extract_first(),
+                'tags': quote.css('div.tags a.tag::text').extract(),
+            }
+
+        next_page = response.css('li.next a::attr(href)').extract_first()
+        if next_page is not None:
+            next_page = response.urljoin(next_page)
+            yield scrapy.Request(next_page, callback=self.parse)
+```
+链接可能是相对路径, 所以用urljoin()方法补全路径.
+递归调用parse()方法自身.
+
+##### 建立请求的捷径
