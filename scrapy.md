@@ -171,3 +171,159 @@ class QuotesSpider(scrapy.Spider):
 递归调用parse()方法自身.
 
 ##### 建立请求的捷径
+
+
+
+
+
+
+##### 支持的版本
+支持python2.7以及python 3.3+
+python2.6在0.20版本就不再支持, 1.1版本以后就开始支持python3了
+
+##### 代理
+从0.8版本开始支持代理, 使用HttpProxyMiddleware.  
+和python的标准库urllib和urllib2一样, 服从系统的环境变量设置:
+* http_proxy
+* https_proxy
+* no_proxy
+
+当然也可以设置
+* proxy
+
+它的值形式为http://some_proxy_server:port或者http://username:password@some_proxy_server:port. 这个值优先于上面三个环境变量.
+
+##### 选取需要爬取的语言
+通过DEFAULT_REQUEST_HEADERS配置项进行设置.
+
+##### 模拟用户登录
+页面的登录表单常会包含一些预填的隐藏项, 我们一般只想修改其中用户名和密码, 可以通过FormRequest.from_response()方法来做.
+```
+import scrapy
+
+class LoginSpider(scrapy.Spider):
+    name = 'example.com'
+    start_urls = ['http://www.example.com/users/login.php']
+
+    def parse(self, response):
+        return scrapy.FormRequest.from_response(
+            response,
+            formdata={'username': 'john', 'password': 'secret'},
+            callback=self.after_login
+        )
+
+    def after_login(self, response):
+        # check login succeed before going on
+        if "authentication failed" in response.body:
+            self.logger.error("Login failed")
+            return
+```
+
+##### 内存泄漏
+在scrapy中, 请求对象, 响应对象和items对象生命周期都是有限的.
+其中生命周期最长的是请求对象, 它会在Scheduler队列中等着被处理. 如果请求对象很多, 不断累积在内存中, 就会引起"内存泄漏".
+为了方便调试, scrapy提供了一种内建的机制来跟踪对象引用. 这种机制叫trackref. 当然也可以用第三方类库如Guppy做进一步debugging.
+这两种机制都需要在Telnet Console中使用.
+详见https://docs.scrapy.org/en/latest/topics/leaks.html#topics-leaks
+
+##### Telnet Console
+telnet就是远程登录. scrapy有一个内建的telnet命令行, 用来检视和控制scrapy进程. 这个telnet命令行就是一个跑在scrapy进程内的常规python命令行, 干啥都行.
+telnet命令行监听在TELNETCONSOLE_PORT配置项中设置的TCP端口. 默认是6023.
+要打开telnet命令行只需要在命令行中输入
+```
+telnet localhost 6023
+>>>
+```
+其中还预先定义了一些默认参数
+* crawler 就是scrapy.crawler.Crawler对象
+* engine Crawler.engine属性
+* spider 当前spider
+* slot engine的slot
+* extentions 扩展管理器, Crawler.extensions属性
+* stats 状态收集器, Crawler.stats属性
+* settings scrapy的设置对象, Crawler.settings属性
+* est 打印一份engine状态报告
+* prefs 内存debugging
+* p ppring.pprint的简称
+* hpy 内存debugging
+如何使用详见https://docs.scrapy.org/en/latest/topics/telnetconsole.html#topics-telnetconsole
+
+
+
+##### Items
+Item类可以返回一个结构优雅的数据对象, API和字典很像, 容易使用.
+还可以用trackref来跟踪Item的实例来分析内存泄漏.
+定义Item, 用到Field类, Field实际上就是内建的dict类, 而且不提供任何额外的功能和属性.
+```
+import scrapy
+
+class Product(scrapy.Item):
+    name = scrapy.Field()
+    price = scrapy.Field()
+    stock = scrapy.Field()
+    last_updated = scrapy.Field(serializer=str)
+```
+Field对象不被指定为item的类属性, 可以通过Item.fields属性进行修改.
+items的使用
+```
+>>> product = Product(name='Desktop PC', price=1000)
+>>> print product
+Product(name='Desktop PC', price=1000)
+>>> product['name']
+Desktop PC
+>>> product.get('name')
+Desktop PC
+
+>>> product['price']
+1000
+
+>>> product['last_updated']
+Traceback (most recent call last):
+    ...
+KeyError: 'last_updated'
+
+>>> product.get('last_updated', 'not set')
+not set
+
+>>> product['lala'] # getting unknown field
+Traceback (most recent call last):
+    ...
+KeyError: 'lala'
+
+>>> product.get('lala', 'unknown field')
+'unknown field'
+
+>>> 'name' in product  # is name field populated?
+True
+
+>>> 'last_updated' in product  # is last_updated populated?
+False
+
+>>> 'last_updated' in product.fields  # is last_updated a declared field?
+True
+
+>>> 'lala' in product.fields  # is lala a declared field?
+False
+
+>>> product.keys()
+['price', 'name']
+
+>>> product.items()
+[('price', 1000), ('name', 'Desktop PC')]
+
+>>> dict(product) # create a dict from all populated values
+{'price': 1000, 'name': 'Desktop PC'}
+
+>>> Product({'name': 'Laptop PC', 'price': 1500})
+Product(price=1500, name='Laptop PC')
+
+>>> Product({'name': 'Laptop PC', 'lala': 1500}) # warning: unknown field in dict
+Traceback (most recent call last):
+    ...
+KeyError: 'Product does not support field: lala'
+```
+可以通过继承来扩展item, 修改serializer
+```
+class SpecificProduct(Product):
+    name = scrapy.Field(Product.fields['name'], serializer=my_serializer)
+```
