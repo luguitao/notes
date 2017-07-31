@@ -171,11 +171,82 @@ class QuotesSpider(scrapy.Spider):
 递归调用parse()方法自身.
 
 ##### 建立请求的捷径
+相比上一端代码中最后一行用到的scrapy.Request, response.follow可以直接使用相对链接.
+response.follow返回一个Request, 仍然需要yield. 它不仅能接收一个字符串, 还可以直接接收一个选择器.
+```
+for href in response.css('li.next a::attr(href)'):
+    yield response.follow(href, callback=self.parse)
+```
+response.follow还会默认使用<a>标签的href属性, 所以可以进一步精简
+```
+for a in response.css('li.next a'):
+    yield response.follow(a, callback=self.parse)
+```
+
+##### 其他
+scrapy默认会识别已经访问过的网页, 避免重复访问, 可以设置中的DUPEFILTER_CLASS进行配置.
+有时构建一个item需要访问多个网页, 这时候就需要给回调函数传递额外的值, 通过Request.meta来传递, 再通过response.meta来获取
+```
+def parse_page1(self, response):
+    item = MyItem()
+    item['main_url'] = response.url
+    request = scrapy.Request("http://www.example.com/some_page.html",
+                             callback=self.parse_page2)
+    request.meta['item'] = item
+    yield request
+
+def parse_page2(self, response):
+    item = response.meta['item']
+    item['other_url'] = response.url
+    yield item
+```
+
+##### 使用spider参数
+可以通过-a给爬虫传参, 这些参数会传递给spider的__init__方法, 传入的参数会变成自己的实例变量.
+```
+scrapy crawl quotes -o quotes-humor.json -a tag=humor
+```
+```
+import scrapy
 
 
+class QuotesSpider(scrapy.Spider):
+    name = "quotes"
 
+    def start_requests(self):
+        url = 'http://quotes.toscrape.com/'
+        tag = getattr(self, 'tag', None)
+        if tag is not None:
+            url = url + 'tag/' + tag
+        yield scrapy.Request(url, self.parse)
 
+    def parse(self, response):
+        for quote in response.css('div.quote'):
+            yield {
+                'text': quote.css('span.text::text').extract_first(),
+                'author': quote.css('small.author::text').extract_first(),
+            }
 
+        next_page = response.css('li.next a::attr(href)').extract_first()
+        if next_page is not None:
+            yield response.follow(next_page, self.parse)
+```
+
+##### 爬取延迟
+```
+class MySpider(CrawlSpider):
+
+    name = 'myspider'
+
+    download_delay = 2
+```
+
+##### spider middleware
+这个中间件是一个hooks方法的框架, 用来处理发送给spiders的相应以及spiders
+
+##### cookies
+scrapy会自动接收和传递cookies, 如果想看, 可以打开COOKIES_DEBUG设置.
+在回调方法中抛出一个CloseSpider异常, 可以主动终止爬虫.
 
 ##### 支持的版本
 支持python2.7以及python 3.3+
